@@ -1,5 +1,4 @@
-using GDC_API.Extensions;
-using Microsoft.AspNetCore.HttpOverrides;
+﻿using GDC_API.Extensions;
 
 namespace GDC_API
 {
@@ -7,12 +6,13 @@ namespace GDC_API
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args);            
 
             // Add services to the container.
             builder.Services.ConfigureCors();
             builder.Services.ConfigureIISIntegration();
             builder.Services.AddControllers();
+            builder.Services.ConfigureMySqlContext(builder.Configuration);
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -32,14 +32,7 @@ namespace GDC_API
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.All
-            });
-
+            app.UseHttpsRedirection();          
             app.UseCors("CorsPolicy");
             app.UseAuthorization();
             app.MapControllers();

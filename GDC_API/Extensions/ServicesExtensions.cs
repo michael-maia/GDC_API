@@ -1,4 +1,8 @@
-﻿namespace GDC_API.Extensions
+﻿using GDC_API.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
+
+namespace GDC_API.Extensions
 {
     // Classe estática (não precisa ser instanciada) do qual será uma extensão da classe de serviços para incluirmos métodos adicionais
     public static class ServiceExtensions
@@ -24,6 +28,23 @@
                 options.AuthenticationDisplayName = null;
                 options.ForwardClientCertificate = true;
             });
+        }
+
+        // Configura o contexto do servidor em MySQL para acessarmos os dados
+        // IConfiguration permite a leitura dos dados salvos no User Secrets
+        public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration config) 
+        {
+            // Documentação para DbConnectionStringBuilder() -> https://docs.microsoft.com/en-us/dotnet/api/system.data.common.dbconnectionstringbuilder?view=net-6.0
+            var connectionStrBuilder = new DbConnectionStringBuilder
+            {
+                // MySQL database no servidor de desenvolvimento
+                { "server", config["DATABASE_DEV:HOST"] },
+                { "userid", config["DATABASE_DEV:USER"] },
+                { "password", config["DATABASE_DEV:PASSWORD"] },
+                { "database", config["DATABASE_DEV:DB_NAME"] }
+            };
+
+            services.AddDbContext<MySQLDatabaseContext>(options => options.UseMySql(connectionStrBuilder.ConnectionString, ServerVersion.AutoDetect(connectionStrBuilder.ConnectionString)));
         }
     }
 }
